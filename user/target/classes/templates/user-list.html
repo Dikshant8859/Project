@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>User List</title>
+<link
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+	rel="stylesheet">
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<style>
+a.disabled {
+	pointer-events: none;
+	cursor: default;
+	color: #000000;
+}
+
+a.enable {
+	pointer-events: unset;
+	text-decoration: none;
+	color: #000000;
+}
+;
+</style>
+</head>
+<body>
+	<div class="container">
+
+		<div class="text-right  mb-5">
+			<h1 style="display: inline-block; float: left;">User List</h1>
+			<a href="/users/new" class="btn btn-primary" style="float: right;">Add
+				New User</a>
+		</div>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Phone</th>
+					<th>Enabled</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="user : ${users}">
+					<td><a th:class="myLink" th:id="'link_' + ${user.id}"
+						th:href="@{'/users/edit/' + ${user.id}}">
+							<p th:text="${user.fname}"></p>
+					</a></td>
+					<td th:text="${user.lastname}"></td>
+					<td th:text="${user.phone}"></td>
+					<td><input class="user-name" type="checkbox"
+						th:id="${user.id}" th:checked="${user.enabled}" /></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<script>
+		$(document).ready(
+				function() {
+					$('.user-name').each(
+							function() {
+								var user_id = ($(this).attr('id'));
+								if ($(this).is(":checked")) {
+
+									$('#link_' + user_id).removeClass(
+											"disabled").addClass("enable");
+								} else {
+									$('#link_' + user_id).removeClass("enable")
+											.addClass("disabled");
+								}
+							});
+					$('.user-name').change(
+							function() {
+								var user_id = $(this).attr('id');
+								var enabled = $(this).is(":checked");
+
+								// Send AJAX request to update the database
+								$.ajax({
+									url : '/users/updateEnabledStatus',
+									method : 'POST',
+									data : {
+										userId : user_id,
+										enabled : enabled
+									},
+									success : function(response) {
+										console.log(response);
+									},
+									error : function(xhr, status, error) {
+										console.error(error);
+									}
+								});
+								if ($(this).is(":checked")) {
+
+									$('#link_' + user_id).removeClass(
+											"disabled").addClass("enable");
+								} else {
+									$('#link_' + user_id).removeClass("enable")
+											.addClass("disabled");
+								}
+
+							});
+				});
+	</script>
+</body>
+</html>
